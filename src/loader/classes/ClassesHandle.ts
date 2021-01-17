@@ -1,27 +1,27 @@
-import {AbstractModuleHandle} from "../AbstractModuleHandle";
+import {AbstractModuleHandle} from '../AbstractModuleHandle';
 
 
 export class ClassesHandle extends AbstractModuleHandle {
 
   size: number = 0;
 
-  classes: {[key:string]:Function[]} = {};
+  classes: { [key: string]: Function[] } = {};
 
-  refs: {[key:string]:string[]} = {};
+  refs: { [key: string]: string[] } = {};
 
 
-  getClasses(topic:string):Function[]{
+  getClasses(topic: string): Function[] {
     return this.classes[topic];
   }
 
 
-  add(topic:string, refs:string[], classes:Function[]){
+  add(topic: string, refs: string[], classes: Function[]) {
     this.classes[topic] = classes;
     this.refs[topic] = refs;
     this.size += classes.length;
   }
 
-  hasAnyClasses(){
+  hasAnyClasses() {
     return this.size;
   }
 

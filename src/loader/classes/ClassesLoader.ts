@@ -5,7 +5,7 @@ import {AbstractModuleLoader} from '../AbstractModuleLoader';
 import {ModuleDescriptor} from '../../registry/ModuleDescriptor';
 import {ClassesHandle} from './ClassesHandle';
 import {IClassesOptions} from './IClassesOptions';
-import {ClassLoader, PlatformUtils} from 'commons-base';
+import {ClassLoader, PlatformUtils} from '@allgemein/base';
 import {Helper} from '../../utils/Helper';
 
 

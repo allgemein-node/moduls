@@ -7,7 +7,7 @@ import {AbstractModuleLoader} from '../loader/AbstractModuleLoader';
 import {AbstractModuleHandle} from '../loader/AbstractModuleHandle';
 
 import {ClassesLoader, IClassesOptions, IRequireOptions, ISettingsOptions, RequireLoader, SettingsLoader} from '../';
-import {CryptUtils, PlatformUtils} from 'commons-base';
+import {CryptUtils, PlatformUtils} from '@allgemein/base';
 import {INpmlsOptions} from '../utils/INpmlsOptions';
 
 

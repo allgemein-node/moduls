@@ -1,4 +1,4 @@
-import {IModuleOptions} from "../IModuleOptions";
+import {IModuleOptions} from '../IModuleOptions';
 
 export interface IClassesLib {
 

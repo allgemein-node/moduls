@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as _ from 'lodash';
-import {PlatformUtils} from "commons-base";
+import {PlatformUtils} from "@allgemein/base";
 import {INpmlsOptions} from "./INpmlsOptions";
 import {ISubModule} from "../registry/ISubModule";
 import * as glob from "glob";

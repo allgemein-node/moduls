@@ -6,7 +6,7 @@ import {SettingsHandle} from "./SettingsHandle";
 import {ISettingsOptions} from "./ISettingsOptions";
 
 import {Helper} from "../../utils/Helper";
-import {PlatformUtils} from "commons-base";
+import {PlatformUtils} from "@allgemein/base";
 
 
 export class SettingsLoader extends AbstractModuleLoader<SettingsHandle, ISettingsOptions> {

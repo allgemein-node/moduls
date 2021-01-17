@@ -1,11 +1,7 @@
-import {suite, test, timeout} from "mocha-typescript";
-import {assert, expect} from "chai";
-import * as fs from 'fs'
-import * as _ from 'lodash'
-import {ModuleRegistry} from "../../src/registry/ModuleRegistry";
-import {Helper} from "../../src/utils/Helper";
-import {PlatformUtils} from "commons-base";
-
+import {suite, test} from '@testdeck/mocha';
+import {expect} from 'chai';
+import {Helper} from '../../src/utils/Helper';
+import {PlatformUtils} from '@allgemein/base';
 
 
 @suite('helper functions')
