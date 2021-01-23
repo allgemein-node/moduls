@@ -1,5 +1,7 @@
 import {ICache} from './ICache';
 
+
+
 export interface IModuleRegistryOptions {
 
   packageFilter?: (packageJson: any) => boolean;
@@ -23,7 +25,7 @@ export interface IModuleRegistryOptions {
   /**
    * how should error be handled for already existsing moduls
    */
-  handleErrorOnDuplicate?:'log' | 'skip' | 'throw'
+  handleErrorOnDuplicate?: 'log' | 'skip' | 'throw'
 
   /**
    * for performace reasons the scanned directories can be cached

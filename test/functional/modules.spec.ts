@@ -5,6 +5,7 @@ import * as _ from 'lodash';
 import {ModuleRegistry} from '../../src/registry/ModuleRegistry';
 import {ICache} from '../../src/registry/ICache';
 import {inspect} from 'util';
+import {Helper} from '../../src/utils/Helper';
 
 
 @suite('modul registry')
@@ -69,7 +70,7 @@ class ModulesSpec {
     let modulNames = _.map(modules, m => m.name);
     expect(modules).to.have.length(2);
     expect(modulNames).to.deep.eq(['@group/module4', 'module2']);
-    expect((await modules[0].packageJson()).core_module).to.be.true;
+    expect((await Helper.getPackageJson(modules[0].path)).core_module).to.be.true;
 
     registry = new ModuleRegistry({
       paths: [
@@ -87,7 +88,7 @@ class ModulesSpec {
     modulNames = _.map(modules, m => m.name);
     expect(modules).to.have.length(2);
     expect(modulNames).to.deep.eq(['@ownGroup/module4', 'module3']);
-    expect((await modules[0].packageJson()).own_module).to.be.true;
+    expect((await Helper.getPackageJson(modules[0].path)).own_module).to.be.true;
   }
 
   @test

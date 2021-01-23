@@ -1,28 +1,21 @@
 import * as _ from 'lodash';
-
 import {ModuleDescriptor} from './ModuleDescriptor';
 import {Helper} from '../utils/Helper';
 import {IModuleRegistryOptions} from './IModuleRegistryOptions';
-import {AbstractModuleLoader} from '../loader/AbstractModuleLoader';
-import {AbstractModuleHandle} from '../loader/AbstractModuleHandle';
-
-import {ClassesLoader, IClassesOptions, IRequireOptions, ISettingsOptions, RequireLoader, SettingsLoader} from '../';
 import {CryptUtils, PlatformUtils} from '@allgemein/base';
 import {INpmlsOptions} from '../utils/INpmlsOptions';
+import {IRequireOptions} from '../loader/require/IRequireOptions';
+import {RequireLoader} from '../loader/require/RequireLoader';
+import {ClassesLoader} from '../loader/classes/ClassesLoader';
+import {IClassesOptions} from '../loader/classes/IClassesOptions';
+import {ISettingsOptions} from '../loader/settings/ISettingsOptions';
+import {SettingsLoader} from '../loader/settings/SettingsLoader';
+import {MODUL_REGISTRY_DEFAULT_OPTIONS} from './Constants';
+import {IModuleRegistry} from './IModuleRegistry';
+import {IModuleLoader} from '../loader/IModuleLoader';
 
 
-const DEFAULT: IModuleRegistryOptions = {
-
-  paths: [],
-
-  pattern: [],
-
-  module: module,
-
-  handleErrorOnDuplicate: 'skip'
-};
-
-export class ModuleRegistry {
+export class ModuleRegistry implements IModuleRegistry {
 
   private readonly _options: IModuleRegistryOptions;
 
@@ -32,7 +25,7 @@ export class ModuleRegistry {
 
 
   constructor(options: IModuleRegistryOptions) {
-    _.defaults(options, DEFAULT);
+    _.defaults(options, MODUL_REGISTRY_DEFAULT_OPTIONS);
     this._modules = [];
     this._options = options;
     this.paths = options.paths; // Helper.checkPaths(options.paths || []);
@@ -60,8 +53,12 @@ export class ModuleRegistry {
     return this._options;
   }
 
+  getOptions() {
+    return this.options();
+  }
 
-  async rebuild(): Promise<ModuleRegistry> {
+
+  async rebuild(): Promise<IModuleRegistry> {
     this._modules = [];
 
     let modules_lists = await Promise.all(
@@ -91,6 +88,10 @@ export class ModuleRegistry {
 
   modules(): ModuleDescriptor[] {
     return this._modules;
+  }
+
+  getModules() {
+    return this.modules();
   }
 
 
@@ -174,7 +175,9 @@ export class ModuleRegistry {
     for (let first of this._modules) {
 
       let dependents = _.filter(this._modules, function (other) {
-        if (other.name == first.name) return false;
+        if (other.name == first.name) {
+          return false;
+        }
 
         if (other.child_modules.indexOf(first.name) > -1) {
           return true;
@@ -202,13 +205,13 @@ export class ModuleRegistry {
   }
 
 
-  async loader<T extends AbstractModuleLoader<AbstractModuleHandle, OPT>, OPT>(loaderClazz: Function, options?: OPT): Promise<T> {
+  async loader<T extends IModuleLoader<any>, OPT>(loaderClazz: Function, options?: OPT): Promise<T> {
     let instance = <T>Reflect.construct(loaderClazz, [this, options]);
     await instance.load(this.modules());
     return instance;
   }
 
-  async createRequireLoader(options?: IRequireOptions): Promise<RequireLoader> {
+  createRequireLoader(options?: IRequireOptions): Promise<RequireLoader> {
     return this.loader<RequireLoader, IRequireOptions>(RequireLoader, options);
   }
 

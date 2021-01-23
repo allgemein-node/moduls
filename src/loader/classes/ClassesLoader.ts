@@ -1,17 +1,15 @@
 import * as _ from 'lodash';
-
 import {AbstractModuleLoader} from '../AbstractModuleLoader';
-
 import {ModuleDescriptor} from '../../registry/ModuleDescriptor';
 import {ClassesHandle} from './ClassesHandle';
 import {IClassesOptions} from './IClassesOptions';
 import {ClassLoader, PlatformUtils} from '@allgemein/base';
-import {Helper} from '../../utils/Helper';
+import {IClassesLoader} from './IClassesLoader';
 
 
 const MODULE_NAME = '__MODULNAME__';
 
-export class ClassesLoader extends AbstractModuleLoader<ClassesHandle, IClassesOptions> {
+export class ClassesLoader extends AbstractModuleLoader<ClassesHandle, IClassesOptions> implements IClassesLoader {
 
 
   getClasses(topic: string): Function[] {
@@ -61,7 +59,7 @@ export class ClassesLoader extends AbstractModuleLoader<ClassesHandle, IClassesO
       let refs = [];
       for (let _path of lib.refs) {
         let lib_path = PlatformUtils.join(modul.path, _path);
-        let res = await Helper.glob(lib_path);
+        let res = await ClassesLoader.glob(lib_path);
 
         if (!_.isEmpty(res)) {
           for (let r of res) {
@@ -119,6 +117,19 @@ export class ClassesLoader extends AbstractModuleLoader<ClassesHandle, IClassesO
     } else {
       return cls[MODULE_NAME] ? cls[MODULE_NAME] : null;
     }
+  }
+
+  static glob(lib_path: string): Promise<string[]> {
+    const glob = PlatformUtils.load('glob');
+    return new Promise((resolve, reject) => {
+      glob(lib_path, ((err: Error, matches: string[]) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(matches);
+        }
+      }));
+    });
   }
 
 

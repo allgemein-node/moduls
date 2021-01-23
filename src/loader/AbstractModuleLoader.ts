@@ -3,8 +3,9 @@ import {ModuleDescriptor} from '../registry/ModuleDescriptor';
 import {AbstractModuleHandle} from './AbstractModuleHandle';
 import {ModuleRegistry} from '../registry/ModuleRegistry';
 import {IModuleOptions} from './IModuleOptions';
+import {IModuleLoader} from './IModuleLoader';
 
-export abstract class AbstractModuleLoader<T extends AbstractModuleHandle, OPT extends IModuleOptions> {
+export abstract class AbstractModuleLoader<T extends AbstractModuleHandle, OPT extends IModuleOptions> implements IModuleLoader<T> {
 
   _options: OPT;
 

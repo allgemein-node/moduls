@@ -1,20 +1,21 @@
 import * as _ from 'lodash';
-import {AbstractModuleLoader} from "../AbstractModuleLoader";
+import {AbstractModuleLoader} from '../AbstractModuleLoader';
 
-import {ModuleDescriptor} from "../../registry/ModuleDescriptor";
-import {SettingsHandle} from "./SettingsHandle";
-import {ISettingsOptions} from "./ISettingsOptions";
+import {ModuleDescriptor} from '../../registry/ModuleDescriptor';
+import {SettingsHandle} from './SettingsHandle';
+import {ISettingsOptions} from './ISettingsOptions';
 
-import {Helper} from "../../utils/Helper";
-import {PlatformUtils} from "@allgemein/base";
-
-
-export class SettingsLoader extends AbstractModuleLoader<SettingsHandle, ISettingsOptions> {
+import {Helper} from '../../utils/Helper';
+import {PlatformUtils} from '@allgemein/base';
+import {ISettingsLoader} from './ISettingsLoader';
 
 
-  getSettings(){
-    let settings = {};
-    for(let x of this.handles()){
+export class SettingsLoader extends AbstractModuleLoader<SettingsHandle, ISettingsOptions> implements ISettingsLoader {
+
+
+  getSettings() {
+    let settings: any = {};
+    for (let x of this.handles()) {
       settings[x.module.name] = x.settings;
     }
     return settings;
@@ -25,27 +26,27 @@ export class SettingsLoader extends AbstractModuleLoader<SettingsHandle, ISettin
     let filepath = PlatformUtils.join(modul.path, this._options.ref);
     let ext = PlatformUtils.pathExtname(filepath, false);
 
-    if(PlatformUtils.fileExist(filepath)){
+    if (PlatformUtils.fileExist(filepath)) {
       handle = new SettingsHandle(modul);
       let file = await Helper.readFile(filepath);
-      let settings = {}
+      let settings = {};
 
-      switch(ext){
+      switch (ext) {
         case 'json':
           settings = JSON.parse(file.toString('utf8'));
           break;
         default:
-          throw new Error('Cannot load settings from '+ext);
+          throw new Error('Cannot load settings from ' + ext);
       }
 
-      if(this._options.path){
-        settings = _.get(settings,this._options.path);
+      if (this._options.path) {
+        settings = _.get(settings, this._options.path);
       }
 
       handle.settings = settings;
     }
 
-    return handle
+    return handle;
   }
 
 

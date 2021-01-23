@@ -1,5 +1,3 @@
-import * as path from 'path';
-import {Helper} from '../utils/Helper';
 import {ISubModule} from './ISubModule';
 
 export class ModuleDescriptor {
@@ -43,10 +41,6 @@ export class ModuleDescriptor {
   }
 
 
-  packageJson(): Promise<any> {
-    return Helper.getPackageJson(this.path);
-  }
-
   static fromOptions(options: any): ModuleDescriptor {
     let m = new ModuleDescriptor();
     m.name = options.name;
@@ -61,11 +55,11 @@ export class ModuleDescriptor {
     return m; //merge(m,options)
   }
 
-  getMain(): string {
+  getMain(sep: string = '/'): string {
     let chain = [this.path];
     if (this.main) {
       chain.push(this.main.replace(/.\w+$/, ''));
     }
-    return path.join(...chain);
+    return chain.join(sep);
   }
 }
