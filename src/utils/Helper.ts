@@ -1,24 +1,25 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as _ from 'lodash';
-import {PlatformUtils} from "@allgemein/base";
-import {INpmlsOptions} from "./INpmlsOptions";
-import {ISubModule} from "../registry/ISubModule";
-import * as glob from "glob";
+import {find, map} from 'lodash';
+import {PlatformUtils} from '@allgemein/base';
+import {INpmlsOptions} from './INpmlsOptions';
+import {ISubModule} from '../registry/ISubModule';
+import * as glob from 'glob';
+
 
 
 export class Helper {
 
   static glob(lib_path: string): Promise<string[]> {
     return new Promise((resolve, reject) => {
-      glob(lib_path, ((err, matches:string[]) => {
+      glob(lib_path, ((err, matches: string[]) => {
         if (err) {
           reject(err);
         } else {
           resolve(matches);
         }
       }));
-    })
+    });
   }
 
   static readFile(file: string): Promise<Buffer> {
@@ -34,17 +35,17 @@ export class Helper {
               reject(err);
             }
           }
-        })
+        });
       } else {
-        reject(new Error('cant find file ' + file))
+        reject(new Error('cant find file ' + file));
       }
-    })
+    });
 
   }
 
   static getPackageJson(_path: string): Promise<any> {
     if (!/package\.json$/.test(_path)) {
-      _path = path.join(_path, 'package.json')
+      _path = path.join(_path, 'package.json');
     }
     return this.readFile(_path).then(buf => {
       let data = buf.toString('utf8');
@@ -61,11 +62,11 @@ export class Helper {
     return new Promise<string[]>((resolve, reject) => {
       fs.readdir(dir, (err: NodeJS.ErrnoException, files: string[]) => {
         if (err) {
-          reject(err)
+          reject(err);
         } else {
           resolve(files);
         }
-      })
+      });
     });
   }
 
@@ -73,11 +74,11 @@ export class Helper {
     return new Promise<fs.Stats>((resolve, reject) => {
       fs.stat(dir, (err: NodeJS.ErrnoException, stats: fs.Stats) => {
         if (err) {
-          reject(err)
+          reject(err);
         } else {
           resolve(stats);
         }
-      })
+      });
     });
   }
 
@@ -87,25 +88,25 @@ export class Helper {
     let inc = options.level;
 
     if (inc >= depth) {
-      return []
+      return [];
     }
 
     options.level = inc + 1;
 
     let modules: any[] = [];
     let directories = await this.readdir(node_modules_dir);
-    await Promise.all(_.map(directories, async (directory: string) => {
+    await Promise.all(map(directories, async (directory: string) => {
       if (/^@/.test(directory)) {
         // is grouped
         let _grouped_node_modules_dir = PlatformUtils.join(node_modules_dir, directory);
         let _directories = await this.readdir(_grouped_node_modules_dir);
 
-        return Promise.all(_.map(_directories, async (_directory: string) => {
+        return Promise.all(map(_directories, async (_directory: string) => {
           _directory = PlatformUtils.join(directory, _directory);
-          return Helper.lookupNpmInDirectory(node_modules_dir, _directory, modules, options)
+          return Helper.lookupNpmInDirectory(node_modules_dir, _directory, modules, options);
         }));
       } else {
-        return Helper.lookupNpmInDirectory(node_modules_dir, directory, modules, options)
+        return Helper.lookupNpmInDirectory(node_modules_dir, directory, modules, options);
       }
 
     }));
@@ -120,9 +121,11 @@ export class Helper {
     }
 
     let package_json = await this.getPackageJson(_path);
-    let modul_exists = _.find(modules, x => x.name == directory);
+    let modul_exists = find(modules, x => x.name == directory);
 
-    if (modul_exists) return;
+    if (modul_exists) {
+      return;
+    }
 
     package_json.path = PlatformUtils.pathResolve(_path);
     package_json.child_modules = [];
@@ -137,9 +140,9 @@ export class Helper {
 
     if (options.subModulePaths) {
       // look in subpath like "node_modules"
-      let results = await Promise.all(_.map(options.subModulePaths, subpath => {
-        return this.look(_path, subpath, modules, options)
-      }))
+      let results = await Promise.all(map(options.subModulePaths, subpath => {
+        return this.look(_path, subpath, modules, options);
+      }));
 
       for (let res of results) {
         if (res.subpath === 'node_modules') {
@@ -152,13 +155,10 @@ export class Helper {
           };
         }
       }
-
-
     }
-
-
     return modules;
   }
+
 
   static async look(_path: string, subpath: string, modules: any[] = [], options?: INpmlsOptions) {
     // FIXME detect the node_modules path
@@ -167,7 +167,7 @@ export class Helper {
       subpath: subpath,
       has_modules: false,
       child_modules: []
-    }
+    };
     if (PlatformUtils.fileExist(_new_node_module_dir)) {
       try {
         let stat = await this.stat(_new_node_module_dir);
@@ -177,10 +177,10 @@ export class Helper {
           for (let _x of _modules) {
             info.child_modules.push(_x.name);
             let _modul_exists = modules.find(function (_m) {
-              return _m.name == _x.name
+              return _m.name == _x.name;
             });
             if (!_modul_exists) {
-              modules.push(_x)
+              modules.push(_x);
             }
           }
         }
@@ -193,7 +193,7 @@ export class Helper {
   }
 
   static checkPaths(paths: string[]) {
-    let ret_paths = []
+    let ret_paths = [];
     for (let _path of paths) {
       _path = path.resolve(_path);
       let _try_path = path.join(_path, 'node_modules');
@@ -205,7 +205,7 @@ export class Helper {
       } else {
         throw new Error('checking path ' + _path + ' doesn\'t exists');
       }
-      ret_paths.push(_path)
+      ret_paths.push(_path);
     }
     return ret_paths;
   }

@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import {find, isArray, orderBy} from 'lodash';
 import {ModuleDescriptor} from '../registry/ModuleDescriptor';
 import {AbstractModuleHandle} from './AbstractModuleHandle';
 import {ModuleRegistry} from '../registry/ModuleRegistry';
@@ -24,13 +24,17 @@ export abstract class AbstractModuleLoader<T extends AbstractModuleHandle, OPT e
 
   add(handle: T) {
     if (handle) {
-      let exists = _.find(this._handles, (x) => {
+      let exists = find(this._handles, (x) => {
         return x.module.name === handle.module.name;
       });
       if (!exists) {
         this._handles.push(handle);
         // correct order if necessary
-        this._handles = _.orderBy(this._handles, ['module.weight']);
+        this._handles = orderBy(this._handles, [
+          x => x.module.weight,
+          x => x.module.child_modules.length,
+          x => x.module.id
+        ], ['asc', 'asc', 'asc']);
       } else {
         throw new Error('handle for module ' + handle.module.name + ' already loaded');
       }
@@ -43,7 +47,7 @@ export abstract class AbstractModuleLoader<T extends AbstractModuleHandle, OPT e
   load(module: ModuleDescriptor): Promise<T> ;
   load(modules: ModuleDescriptor[]): Promise<T[]> ;
   load(modules: ModuleDescriptor | ModuleDescriptor[]): Promise<T | T[]> {
-    if (_.isArray(modules)) {
+    if (isArray(modules)) {
       const promises = [];
       for (let x of modules) {
         if (this._options.filter && !this._options.filter(x)) {

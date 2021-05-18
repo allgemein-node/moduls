@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import {concat, defaults, filter, find, isNull, map, uniq, values} from 'lodash';
 import {ModuleDescriptor} from './ModuleDescriptor';
 import {Helper} from '../utils/Helper';
 import {IModuleRegistryOptions} from './IModuleRegistryOptions';
@@ -25,13 +25,13 @@ export class ModuleRegistry implements IModuleRegistry {
 
 
   constructor(options: IModuleRegistryOptions) {
-    _.defaults(options, MODUL_REGISTRY_DEFAULT_OPTIONS);
+    defaults(options, MODUL_REGISTRY_DEFAULT_OPTIONS);
     this._modules = [];
     this._options = options;
     this.paths = options.paths; // Helper.checkPaths(options.paths || []);
     this._options.depth = this._options.depth || 2;
     this._options.pattern.unshift('node_modules');
-    this._options.pattern = _.uniq(this._options.pattern);
+    this._options.pattern = uniq(this._options.pattern);
   }
 
 
@@ -59,17 +59,18 @@ export class ModuleRegistry implements IModuleRegistry {
 
 
   async rebuild(): Promise<IModuleRegistry> {
+    ModuleDescriptor.INC = 0;
     this._modules = [];
 
     let modules_lists = await Promise.all(
-      _.map(this.paths, this._scan_module_path.bind(this))
+      map(this.paths, this._scan_module_path.bind(this))
     );
 
     let to_register = [];
     let one_list = [].concat(...modules_lists);
 
     for (let __modul of one_list) {
-      let _modul = _.find(to_register, function (_x) {
+      let _modul = find(to_register, function (_x) {
         return _x.name == __modul.name;
       });
 
@@ -81,7 +82,7 @@ export class ModuleRegistry implements IModuleRegistry {
       }
     }
 
-    //  await Promise.all(_.map(modules, this.load.bind(this)));
+    //  await Promise.all(map(modules, this.load.bind(this)));
     this._build_registry(to_register);
     return this;
   }
@@ -112,7 +113,7 @@ export class ModuleRegistry implements IModuleRegistry {
       subModulePaths: this._options.pattern
     };
 
-    if (_.isNull(packageJsons)) {
+    if (isNull(packageJsons)) {
       packageJsons = [];
       if (PlatformUtils.fileExist(PlatformUtils.join(node_modules_dir, 'package.json'))) {
         options.depth++;
@@ -124,7 +125,7 @@ export class ModuleRegistry implements IModuleRegistry {
         packageJsons = await Helper.npmls(node_modules_dir, options);
       }
 
-      if (this.hasCache()) {
+      if (this.hasCache() && packageJsons) {
         try {
           this.getCache().set(cacheKey, packageJsons);
         } catch (e) {
@@ -133,7 +134,7 @@ export class ModuleRegistry implements IModuleRegistry {
       }
     }
 
-    return _.map(packageJsons, (module: any) => {
+    return map(packageJsons, (module: any) => {
       return ModuleDescriptor.fromOptions(module);
     });
   }
@@ -143,22 +144,22 @@ export class ModuleRegistry implements IModuleRegistry {
     this._modules = modules;
 
     for (let _modul of this._modules) {
-      let dependencies = _.concat([], Object.keys(_modul.dependencies), Object.keys(_modul.peerDependencies));
+      let dependencies = concat([], Object.keys(_modul.dependencies), Object.keys(_modul.peerDependencies));
       let submoduls: string[] = [];
-      _.map(_.values(_modul.sub_modules), v => {
+      map(values(_modul.sub_modules), v => {
         submoduls.push(...v.modules);
       });
 
-      let children = _.filter(this._modules, function (_x) {
+      let children = filter(this._modules, function (_x) {
         return dependencies.indexOf(_x.name) > -1;
       });
 
       for (let _dep_modul of children) {
         _modul.child_modules.push(_dep_modul.name);
       }
-      _modul.child_modules = _.uniq(_modul.child_modules);
+      _modul.child_modules = uniq(_modul.child_modules);
 
-      let submodules = _.filter(this._modules, (_x) => {
+      let submodules = filter(this._modules, (_x) => {
         return submoduls.indexOf(_x.name) > -1;
       });
 
@@ -174,7 +175,7 @@ export class ModuleRegistry implements IModuleRegistry {
 
     for (let first of this._modules) {
 
-      let dependents = _.filter(this._modules, function (other) {
+      let dependents = filter(this._modules, function (other) {
         if (other.name == first.name) {
           return false;
         }

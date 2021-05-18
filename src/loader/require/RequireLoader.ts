@@ -1,10 +1,7 @@
 import * as path from 'path';
-import * as _ from 'lodash';
-
+import {filter, isFunction, isObject, map} from 'lodash';
 import {RequireHandle} from './RequireHandle';
 import {AbstractModuleLoader} from '../AbstractModuleLoader';
-
-
 import {ModuleDescriptor} from '../../registry/ModuleDescriptor';
 import {Helper} from '../../utils/Helper';
 import {IRequireOptions} from './IRequireOptions';
@@ -36,7 +33,7 @@ export class RequireLoader extends AbstractModuleLoader<RequireHandle, IRequireO
     }
 
     Object.getOwnPropertyNames(handle.ref).forEach(function (val, idx, array) {
-      if (handle.ref[val] && _.isFunction(handle.ref[val]) && val != 'exposesHooks' && val.match(/^on[A-Z]/)) {
+      if (handle.ref[val] && isFunction(handle.ref[val]) && val != 'exposesHooks' && val.match(/^on[A-Z]/)) {
         let _val = val.replace('on', '');
         _val = _val[0].toLowerCase() + _val.substring(1);
         handle.usesHooks.push(_val);
@@ -50,16 +47,16 @@ export class RequireLoader extends AbstractModuleLoader<RequireHandle, IRequireO
   async invokeHook(hook: string, ...args: any[]) {
     let options: any = {concurrency: Infinity};
 
-    if (_.isObject(hook)) {
+    if (isObject(hook)) {
       options = hook;
       hook = options.hook;
     }
 
-    let handles = _.filter(this._handles, function (_x) {
+    let handles = filter(this._handles, function (_x) {
       return _x.usesHooks.indexOf(hook) > -1;
     });
 
-    return await Promise.all(_.map(handles, (handle) => {
+    return await Promise.all(map(handles, (handle) => {
       let _args = [handle, hook];
       _args = _args.concat(args);
       return RequireLoader.handleCall.apply(null, _args);

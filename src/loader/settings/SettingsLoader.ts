@@ -1,10 +1,8 @@
-import * as _ from 'lodash';
+import {get} from 'lodash';
 import {AbstractModuleLoader} from '../AbstractModuleLoader';
-
 import {ModuleDescriptor} from '../../registry/ModuleDescriptor';
 import {SettingsHandle} from './SettingsHandle';
 import {ISettingsOptions} from './ISettingsOptions';
-
 import {Helper} from '../../utils/Helper';
 import {PlatformUtils} from '@allgemein/base';
 import {ISettingsLoader} from './ISettingsLoader';
@@ -40,7 +38,7 @@ export class SettingsLoader extends AbstractModuleLoader<SettingsHandle, ISettin
       }
 
       if (this._options.path) {
-        settings = _.get(settings, this._options.path);
+        settings = get(settings, this._options.path);
       }
 
       handle.settings = settings;

@@ -10,3 +10,5 @@ export const MODUL_REGISTRY_DEFAULT_OPTIONS: IModuleRegistryOptions = {
 
   handleErrorOnDuplicate: 'skip'
 };
+
+

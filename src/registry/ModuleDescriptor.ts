@@ -1,6 +1,11 @@
 import {ISubModule} from './ISubModule';
 
+
 export class ModuleDescriptor {
+
+  static INC = 0;
+
+  id = ModuleDescriptor.INC++;
 
   name: string;
 

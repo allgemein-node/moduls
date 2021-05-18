@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import {isEmpty} from 'lodash';
 import {AbstractModuleLoader} from '../AbstractModuleLoader';
 import {ModuleDescriptor} from '../../registry/ModuleDescriptor';
 import {ClassesHandle} from './ClassesHandle';
@@ -16,7 +16,7 @@ export class ClassesLoader extends AbstractModuleLoader<ClassesHandle, IClassesO
     let classes: Function[] = [];
     for (let handle of this.handles()) {
       let cls = handle.getClasses(topic);
-      if (!_.isEmpty(cls)) {
+      if (!isEmpty(cls)) {
         classes = classes.concat(cls);
       }
     }
@@ -27,7 +27,7 @@ export class ClassesLoader extends AbstractModuleLoader<ClassesHandle, IClassesO
     let classes: Function[] = [];
     for (let handle of this.handles()) {
       let cls = handle.getClasses(topic);
-      if (!_.isEmpty(cls)) {
+      if (!isEmpty(cls)) {
         cls.forEach(c => {
           const className = ClassLoader.getClassName(c);
           if (excludeFilter && excludeFilter(className, handle.module.name)) {
@@ -44,7 +44,7 @@ export class ClassesLoader extends AbstractModuleLoader<ClassesHandle, IClassesO
     let classes: { [modul: string]: Function[] } = {};
     for (let handle of this.handles()) {
       let modulClasses = handle.getClasses(topic);
-      if (!_.isEmpty(modulClasses)) {
+      if (!isEmpty(modulClasses)) {
         classes[handle.module.name] = modulClasses;
       }
     }
@@ -61,7 +61,7 @@ export class ClassesLoader extends AbstractModuleLoader<ClassesHandle, IClassesO
         let lib_path = PlatformUtils.join(modul.path, _path);
         let res = await ClassesLoader.glob(lib_path);
 
-        if (!_.isEmpty(res)) {
+        if (!isEmpty(res)) {
           for (let r of res) {
             if (PlatformUtils.fileExist(r) && PlatformUtils.isDir(r)) {
               refs.push(PlatformUtils.join(r, '*'));
@@ -77,7 +77,7 @@ export class ClassesLoader extends AbstractModuleLoader<ClassesHandle, IClassesO
         }
       }
 
-      if (!_.isEmpty(refs)) {
+      if (!isEmpty(refs)) {
         promises.push(this.loadClasses(handle, refs, modul.name, lib.topic));
       }
     }
@@ -91,7 +91,7 @@ export class ClassesLoader extends AbstractModuleLoader<ClassesHandle, IClassesO
 
   private async loadClasses(handle: ClassesHandle, refs: string[], modulName: string, topic: string) {
     let classes = await ClassLoader.importClassesFromAnyAsync(refs);
-    if (!_.isEmpty(classes)) {
+    if (!isEmpty(classes)) {
       if (Reflect && Reflect['getOwnMetadata']) {
         classes.forEach(cls => {
           Reflect['defineMetadata'](MODULE_NAME, modulName, cls);
