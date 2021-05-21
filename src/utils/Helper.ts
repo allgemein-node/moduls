@@ -1,6 +1,6 @@
 import {existsSync, readdir, readFile, stat, Stats} from 'fs';
 import {join, resolve} from 'path';
-import {find, has, map, remove} from 'lodash';
+import {find, has, isEmpty, map, remove} from 'lodash';
 import {PlatformUtils} from '@allgemein/base';
 import {INpmlsOptions} from './INpmlsOptions';
 import {ISubModule} from '../registry/ISubModule';
@@ -116,19 +116,21 @@ export class Helper {
   static async getValidDirectories(node_modules_dir: string, options: INpmlsOptions) {
     let directories = await this.readdir(node_modules_dir);
     if (has(options, 'exclude') || has(options, 'include')) {
-      let includes: string[] = [];
-      for (const entry of options.include || []) {
-        const pattern = new Minimatch(entry);
-        includes = includes.concat(
-          directories.filter((path => {
-            const _resolve = join(node_modules_dir, path);
-            return pattern.match(_resolve);
-          }))
-        );
-      }
-      if(has(options, 'include')){
+
+      if (has(options, 'include') && !isEmpty(options.include)) {
+        let includes: string[] = [];
+        for (const entry of options.include || []) {
+          const pattern = new Minimatch(entry);
+          includes = includes.concat(
+            directories.filter((path => {
+              const _resolve = join(node_modules_dir, path);
+              return pattern.match(_resolve);
+            }))
+          );
+        }
         directories = includes;
       }
+
       for (const entry of options.exclude || []) {
         const pattern = new Minimatch(entry);
         remove(directories, (path => {
