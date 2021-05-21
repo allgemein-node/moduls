@@ -4,7 +4,6 @@ import {expect} from 'chai';
 import * as _ from 'lodash';
 import {ModuleRegistry} from '../../src/registry/ModuleRegistry';
 import {ICache} from '../../src/registry/ICache';
-import {inspect} from 'util';
 import {Helper} from '../../src/utils/Helper';
 
 
@@ -152,6 +151,33 @@ class ModulesSpec {
     expect(modules).to.have.length(2);
     expect(modules[0].name).to.eq('module6');
     expect(modules[1].name).to.eq('module5');
+
+  }
+
+  @test
+  async 'ignore module paths by regexp'() {
+    let registry = new ModuleRegistry({
+      paths: [
+        '.',
+      ],
+      depth: 3,
+      module: module,
+      include: [
+        '**/@allgemein{,**/}*'
+      ],
+      exclude: [
+        '**/@types{,**/}*'
+      ]
+    });
+
+    await registry.rebuild();
+    let modules = registry.modules();
+    expect(modules).to.have.length(3);
+    expect(modules.map(x => x.name)).to.be.deep.eq([
+      '@allgemein/base',
+      '@allgemein/packaging',
+      '@allgemein/moduls'
+    ]);
 
   }
 

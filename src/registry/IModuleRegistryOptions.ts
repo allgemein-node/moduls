@@ -31,4 +31,15 @@ export interface IModuleRegistryOptions {
    * for performace reasons the scanned directories can be cached
    */
   cache?: ICache;
+
+
+  /**
+   * Glob pattern to exclude some directories.
+   */
+  exclude?: string[];
+
+  /**
+   * Glob pattern to include some directories.
+   */
+  include?: string[];
 }

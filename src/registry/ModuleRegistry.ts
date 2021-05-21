@@ -13,6 +13,7 @@ import {SettingsLoader} from '../loader/settings/SettingsLoader';
 import {MODUL_REGISTRY_DEFAULT_OPTIONS} from './Constants';
 import {IModuleRegistry} from './IModuleRegistry';
 import {IModuleLoader} from '../loader/IModuleLoader';
+import {C_NODE_MODULES, C_PACKAGE_JSON} from '../Constants';
 
 
 export class ModuleRegistry implements IModuleRegistry {
@@ -30,7 +31,7 @@ export class ModuleRegistry implements IModuleRegistry {
     this._options = options;
     this.paths = options.paths; // Helper.checkPaths(options.paths || []);
     this._options.depth = this._options.depth || 2;
-    this._options.pattern.unshift('node_modules');
+    this._options.pattern.unshift(C_NODE_MODULES);
     this._options.pattern = uniq(this._options.pattern);
   }
 
@@ -110,12 +111,18 @@ export class ModuleRegistry implements IModuleRegistry {
     let options: INpmlsOptions = {
       filter: this._options.packageFilter,
       depth: this._options.depth,
-      subModulePaths: this._options.pattern
+      subModulePaths: this._options.pattern,
     };
+    if (this._options.exclude) {
+      options.exclude = this._options.exclude;
+    }
+    if (this._options.include) {
+      options.include = this._options.include;
+    }
 
     if (isNull(packageJsons)) {
       packageJsons = [];
-      if (PlatformUtils.fileExist(PlatformUtils.join(node_modules_dir, 'package.json'))) {
+      if (PlatformUtils.fileExist(PlatformUtils.join(node_modules_dir, C_PACKAGE_JSON))) {
         options.depth++;
         let dirname = PlatformUtils.dirname(node_modules_dir);
         let basename = PlatformUtils.basename(node_modules_dir);
