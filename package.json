@@ -1,6 +1,6 @@
 {
   "name": "@allgemein/moduls",
-  "version": "1.6.4",
+  "version": "1.6.5",
   "description": "Commons-moduls handles and manages contextual moduls for complex and modular applications. ",
   "main": "./index.js",
   "browser": {
