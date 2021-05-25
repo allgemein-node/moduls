@@ -2,7 +2,7 @@ import {isEmpty} from 'lodash';
 import {AbstractModuleLoader} from '../AbstractModuleLoader';
 import {ModuleDescriptor} from '../../registry/ModuleDescriptor';
 import {ClassesHandle} from './ClassesHandle';
-import {IClassesOptions} from './IClassesOptions';
+import {IClassesLib, IClassesOptions} from './IClassesOptions';
 import {ClassLoader, PlatformUtils} from '@allgemein/base';
 import {IClassesLoader} from './IClassesLoader';
 
@@ -54,9 +54,16 @@ export class ClassesLoader extends AbstractModuleLoader<ClassesHandle, IClassesO
 
   protected async loadOne(modul: ModuleDescriptor): Promise<ClassesHandle> {
     let handle = new ClassesHandle(modul);
-    let promises = [];
-    for (let lib of this._options.libs) {
-      let refs = [];
+
+    // for (let lib of this._options.libs) {
+    const libs = await Promise.all(this._options.libs.map(async (lib: IClassesLib) => {
+      const _lib: { topic: string, refs: string[], classes: Function[] } = {
+        topic: lib.topic,
+        refs: [],
+        classes: []
+      };
+      const topic = lib.topic;
+      // let refs = [];
       for (let _path of lib.refs) {
         let lib_path = PlatformUtils.join(modul.path, _path);
         let res = await ClassesLoader.glob(lib_path);
@@ -64,32 +71,41 @@ export class ClassesLoader extends AbstractModuleLoader<ClassesHandle, IClassesO
         if (!isEmpty(res)) {
           for (let r of res) {
             if (PlatformUtils.fileExist(r) && PlatformUtils.isDir(r)) {
-              refs.push(PlatformUtils.join(r, '*'));
+              _lib.refs.push(PlatformUtils.join(r, '*'));
             } else if (PlatformUtils.fileExist(r) && PlatformUtils.isFile(r)) {
-              refs.push(r);
+              _lib.refs.push(r);
             }
           }
         } else if (PlatformUtils.fileExist(lib_path + '.js') && PlatformUtils.isFile(lib_path + '.js')) {
-          refs.push(lib_path + '.js');
+          _lib.refs.push(lib_path + '.js');
         } else if (PlatformUtils.fileExist(lib_path + '.ts') && PlatformUtils.isFile(lib_path + '.ts')) {
           // if ts-node is used on start
-          refs.push(lib_path + '.ts');
+          _lib.refs.push(lib_path + '.ts');
         }
       }
 
-      if (!isEmpty(refs)) {
-        promises.push(this.loadClasses(handle, refs, modul.name, lib.topic));
-      }
-    }
+      if (!isEmpty(_lib.refs)) {
+        _lib.classes = await this.loadClasses(_lib.refs, modul.name, topic);
+        // handle: ClassesHandle,
 
-    if (promises.length > 0) {
-      await Promise.all(promises);
+      }
+      return _lib;
+    }));
+
+    for (const lib of libs) {
+      handle.add(lib.topic, lib.refs, lib.classes);
     }
+    // }
+    //
+    // if (promises.length > 0) {
+    //   await Promise.all(promises);
+    // }
     return handle.hasAnyClasses() ? handle : null;
   }
 
 
-  private async loadClasses(handle: ClassesHandle, refs: string[], modulName: string, topic: string) {
+  private async loadClasses(
+    refs: string[], modulName: string, topic: string) {
     let classes = await ClassLoader.importClassesFromAnyAsync(refs);
     if (!isEmpty(classes)) {
       if (Reflect && Reflect['getOwnMetadata']) {
@@ -101,8 +117,9 @@ export class ClassesLoader extends AbstractModuleLoader<ClassesHandle, IClassesO
           cls[MODULE_NAME] = modulName;
         });
       }
-      handle.add(topic, refs, classes);
+      return classes;
     }
+    return [];
   }
 
 
