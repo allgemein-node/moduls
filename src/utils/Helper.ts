@@ -5,7 +5,7 @@ import {PlatformUtils} from '@allgemein/base';
 import {INpmlsOptions} from './INpmlsOptions';
 import {ISubModule} from '../registry/ISubModule';
 import * as glob from 'glob';
-import {Minimatch} from 'minimatch';
+import {isMatch} from 'micromatch';
 import {C_NODE_MODULES, C_PACKAGE_JSON} from '../Constants';
 
 
@@ -120,11 +120,11 @@ export class Helper {
       if (has(options, 'include') && !isEmpty(options.include)) {
         let includes: string[] = [];
         for (const entry of options.include || []) {
-          const pattern = new Minimatch(entry);
+          // const pattern = new Minimatch(entry);
           includes = includes.concat(
             directories.filter((path => {
               const _resolve = join(node_modules_dir, path);
-              return pattern.match(_resolve);
+              return isMatch(_resolve, entry);
             }))
           );
         }
@@ -132,10 +132,11 @@ export class Helper {
       }
 
       for (const entry of options.exclude || []) {
-        const pattern = new Minimatch(entry);
+        // const pattern = new Minimatch(entry);
         remove(directories, (path => {
           const _resolve = join(node_modules_dir, path);
-          return pattern.match(_resolve);
+          return isMatch(_resolve, entry);
+          // return pattern.match(_resolve);
         }));
       }
     }

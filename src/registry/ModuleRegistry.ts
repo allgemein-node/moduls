@@ -72,7 +72,7 @@ export class ModuleRegistry implements IModuleRegistry {
 
     for (let __modul of one_list) {
       let _modul = find(to_register, function (_x) {
-        return _x.name == __modul.name;
+        return _x.name === __modul.name;
       });
 
       if (!_modul) {
@@ -229,5 +229,10 @@ export class ModuleRegistry implements IModuleRegistry {
 
   async createSettingsLoader(options?: ISettingsOptions): Promise<SettingsLoader> {
     return this.loader<SettingsLoader, ISettingsOptions>(SettingsLoader, options);
+  }
+
+
+  save(){
+
   }
 }

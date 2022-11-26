@@ -38,5 +38,30 @@ class ModulesSpec {
 
   }
 
+  @test
+  async 'valid directories'() {
+    let dir = await Helper.getValidDirectories(__dirname + '/../../node_modules', {depth: 5});
+    let all = dir.length;
+    expect(dir).to.have.length.gt(0);
+    expect(dir).to.include('@allgemein');
+    dir = await Helper.getValidDirectories(__dirname + '/../../node_modules', {depth: 5, exclude: ['**/@types{,**/}*']});
+    expect(dir).to.have.length(all - 1);
+    dir = await Helper.getValidDirectories(__dirname + '/../../node_modules',
+      {depth: 5, exclude: ['**/@types{,**/}*'], include: ['**/@allgemein{,**/}*']});
+    expect(dir).to.have.length(1);
+    dir = await Helper.getValidDirectories(__dirname + '/../../node_modules',
+      {depth: 5, exclude: ['**/@types{,**/}*'], include: ['**/@allgemein']});
+    expect(dir).to.have.length(1);
+    dir = await Helper.getValidDirectories(__dirname + '/../../node_modules/@allgemein',
+      {depth: 5, exclude: ['**/@types{,**/}*'], include: ['**/@allgemein']});
+    expect(dir).to.have.length(0);
+    dir = await Helper.getValidDirectories(__dirname + '/../../node_modules/@allgemein',
+      {depth: 5, exclude: ['**/@types{,**/}*'], include: ['**/@allgemein', '**/@allgemein/base']});
+    expect(dir).to.have.length(1);
+    dir = await Helper.getValidDirectories(__dirname + '/../../node_modules/@allgemein',
+      {depth: 5, exclude: ['**/@types{,**/}*'], include: ['**/@allgemein', '**/@allgemein/base{,**/}*']});
+    expect(dir).to.have.length(1);
+
+  }
 
 }
