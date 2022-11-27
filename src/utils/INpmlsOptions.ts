@@ -13,4 +13,10 @@ export interface INpmlsOptions {
    * Glob pattern to include some directories.
    */
   include?: string[];
+
+
+  /**
+   * Options for micromatch dirname pattern match
+   */
+  matcherOptions?: any;
 }

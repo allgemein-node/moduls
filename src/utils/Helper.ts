@@ -120,11 +120,10 @@ export class Helper {
       if (has(options, 'include') && !isEmpty(options.include)) {
         let includes: string[] = [];
         for (const entry of options.include || []) {
-          // const pattern = new Minimatch(entry);
           includes = includes.concat(
             directories.filter((path => {
               const _resolve = join(node_modules_dir, path);
-              return isMatch(_resolve, entry);
+              return isMatch(_resolve, entry, options.matcherOptions || {dot: true});
             }))
           );
         }
@@ -132,11 +131,9 @@ export class Helper {
       }
 
       for (const entry of options.exclude || []) {
-        // const pattern = new Minimatch(entry);
         remove(directories, (path => {
           const _resolve = join(node_modules_dir, path);
-          return isMatch(_resolve, entry);
-          // return pattern.match(_resolve);
+          return isMatch(_resolve, entry, options.matcherOptions || {dot: true});
         }));
       }
     }

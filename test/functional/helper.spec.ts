@@ -2,6 +2,7 @@ import {suite, test} from '@testdeck/mocha';
 import {expect} from 'chai';
 import {Helper} from '../../src/utils/Helper';
 import {PlatformUtils} from '@allgemein/base';
+import * as micromatch from 'micromatch';
 
 
 @suite('helper functions')
@@ -64,4 +65,20 @@ class ModulesSpec {
 
   }
 
+
+  @test
+  'micromatch'() {
+    const opt = {dot: true, contains: true};
+    const pattern = '**/@allgemein{,**/}*';
+    // const p = micromatch.parse(pattern, opt);
+    // console.log(p);
+    let match = micromatch.isMatch('/tmp/app/node_modules/@allgemein', pattern, opt);
+    expect(match).to.be.true;
+
+    match = micromatch.isMatch('/tmp/.mount_@aufga61Cxaz/resources/app/node_modules/@allgemein', pattern, opt);
+    expect(match).to.be.true;
+
+    match = micromatch.isMatch('/tmp/mount_@aufga61Cxaz/resources/app/node_modules/@allgemein', pattern, opt);
+    expect(match).to.be.true;
+  }
 }
