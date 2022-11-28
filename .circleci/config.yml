@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   test:
     docker:
-      - image: circleci/node:14
+      - image: circleci/node:16
 #    machine:
 #      image: ubuntu-2004:202010-01
     working_directory: ~/app
